@@ -2,12 +2,45 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 
-const element = <FontAwesomeIcon icon={faTrashAlt} />;
+function TodoList(props) {
+  const todos = props.todos;
+  const todoItems = todos.map((todo) =>
+    <li key={todo.id}>
+      {todo.label}
+      <span style={{ float: "right" }}>
+        <FontAwesomeIcon icon={faTrashAlt} onClick={() => props.onDelete(todo.id)} />
+      </span>
+    </li>
+  );
+  return (
+    <ul>
+      {todoItems}
+    </ul>
+  );
+}
 
-//create your first component
 const Home = () => {
   const [inputValue, setInputValue] = useState("");
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState([
+    {id: 1, label: "Learn React", done: false},
+    {id: 2, label: "Build an app", done: false},
+    {id: 3, label: "Deploy the app", done: true},
+  ]);
+
+  const addTask = (task) => {
+    const newTodos = [...todos, { id: todos.length + 1, label: task, done: false }];
+    setTodos(newTodos);
+  };
+
+  const deleteTask = (id) => {
+    const newTodos = todos.filter((todo) => todo.id !== id);
+    setTodos(newTodos);
+  };
+
+  const deleteAllTasks = () => {
+    setTodos([]);
+  };
+
   return (
     <div className="container">
       <h1>Todos</h1>
@@ -19,30 +52,16 @@ const Home = () => {
             value={inputValue}
             onKeyPress={(e) => {
               if (e.key === "Enter") {
-                setTodos(todos.concat(inputValue));
+                addTask(inputValue);
                 setInputValue("");
               }
             }}
             placeholder="What do you need to do?"
           />
         </li>
-        {todos.map((item, index) => (
-          <li key={index}>
-            {item}
-            <span style={{ float: "right" }}>
-              <FontAwesomeIcon
-                icon={faTrashAlt}
-                onClick={() =>
-                  setTodos(
-                    todos.filter((t, currentIndex) => index !== currentIndex)
-                  )
-                }
-              />
-            </span>
-          </li>
-        ))}
+        <TodoList todos={todos} onDelete={deleteTask} />
       </ul>
-      <div>{todos.length} tasks</div>
+      <button onClick={deleteAllTasks}>Delete All</button>
     </div>
   );
 };
